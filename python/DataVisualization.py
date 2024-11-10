@@ -1,5 +1,6 @@
+import pandas as pd
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, filedialog
 from PIL import Image, ImageTk
 import requests
 from io import BytesIO
@@ -26,15 +27,19 @@ def create_viewer():
     root = tk.Tk()
     root.title("Football Stats Visualizer")
     root.geometry("1680x900")
+    root.resizable(False, False)
 
-    # Create a menu widget
+    # Create a menubar widget
     menubar = tk.Menu(root)
     root.config(menu=menubar)
 
     # Create menu options
     file_menu = tk.Menu(menubar, tearoff=0)
-    file_menu.add_command(label="Open")
-    file_menu.add_command(label="Save")
+    export_menu = tk.Menu(file_menu, tearoff=0)
+    export_menu.add_command(label="JSON", command=lambda: export_json(df))
+    export_menu.add_command(label="CSV", command=lambda: export_csv(df))
+    export_menu.add_command(label="XLSX", command=lambda: export_xlsx(df))
+    file_menu.add_cascade(label="Export as...", menu=export_menu)
     file_menu.add_separator()
     file_menu.add_command(label="Exit", command=root.quit)
     menubar.add_cascade(label="File", menu=file_menu)
@@ -227,3 +232,48 @@ def fill_df_canvas(df, frame):
         frame.grid_rowconfigure(i, weight=1)
     for i in range(len(df.columns)):
         frame.grid_columnconfigure(i, weight=1)
+
+# Open filedialog and ask user to save json file
+def export_json(df):
+    file_path = filedialog.asksaveasfilename(defaultextension=".json", filetypes=[("JSON files", "*.json"), ("All files", "*.*")])
+    if file_path:
+        try:
+            # Convert DataFrame to JSON
+            json_data = df.to_json(orient="records")
+            
+            # Save file on specified path
+            with open(file_path, 'w', encoding='utf-8') as file:
+                file.write(json_data)
+            
+            tk.messagebox.showinfo("Success", "File has been saved succesfully.")
+        except Exception as e:
+            tk.messagebox.showerror("Error", f"Cannot save file: {str(e)}")
+
+# Open filedialog and ask user to save csv file
+def export_csv(df):
+    file_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv"), ("All files", "*.*")])
+    if file_path:
+        try:
+            # Convert DataFrame to CSV
+            csv_data = df.to_csv(sep=";", index=False)
+            
+            # Save file on specified path
+            with open(file_path, 'w', encoding='utf-8') as file:
+                file.write(csv_data)
+            
+            tk.messagebox.showinfo("Success", "File has been saved succesfully.")
+        except Exception as e:
+            tk.messagebox.showerror("Error", f"Cannot save file: {str(e)}")
+
+# Open filedialog and ask user to save xlsx file
+def export_xlsx(df):
+    file_path = filedialog.asksaveasfilename(defaultextension=".xlsx", filetypes=[("XLSX files", "*.xlsx"), ("All files", "*.*")])
+    if file_path:
+        try:
+            # Save file on specified path
+            with pd.ExcelWriter(file_path, mode="w") as file:
+                df.to_excel(file, sheet_name="Sheet1", index=False)
+            
+            tk.messagebox.showinfo("Success", "File has been saved succesfully.")
+        except Exception as e:
+            tk.messagebox.showerror("Error", f"Cannot save file: {str(e)}")
