@@ -4,6 +4,7 @@ from PIL import Image, ImageTk
 import requests
 from io import BytesIO
 import DataLoader
+from Colors import *
 
 def create_viewer():
 
@@ -75,6 +76,12 @@ def create_viewer():
     actions_frame = ttk.Frame(root)
     actions_frame.pack(fill=tk.X, padx=10, pady=10)
 
+    # Create legend
+    create_legend_item(actions_frame, Colors.UCL, "Champions League")
+    create_legend_item(actions_frame, Colors.UEL, "Europa League")
+    create_legend_item(actions_frame, Colors.UECL, "Conference League")
+    create_legend_item(actions_frame, Colors.REL, "Relegation")
+
     # Callback for radio buttons change event
     def on_change():
         nonlocal inner_frame
@@ -140,6 +147,16 @@ def load_image(url, size=(50, 50)):
         img = img.resize(size, Image.LANCZOS)
         return ImageTk.PhotoImage(img)
 
+def create_legend_item(parent, color, text):
+    item_frame = ttk.Frame(parent)
+    item_frame.pack(side=tk.LEFT, padx=(0, 10))  # Alineación horizontal con espacio entre elementos
+    
+    color_square = tk.Canvas(item_frame, width=20, height=20, bg=color, highlightthickness=0)
+    color_square.pack(side=tk.LEFT, padx=(0, 5))
+    
+    label = ttk.Label(item_frame, text=text)
+    label.pack(side=tk.LEFT)
+
 # Fill canvas with DataFrame data
 def fill_df_canvas(df, frame):
 
@@ -147,10 +164,10 @@ def fill_df_canvas(df, frame):
     style = ttk.Style()
     style.configure("Cell.TFrame", borderwidth=1, relief="solid")
     style.configure("Bold.TLabel", font=('Arial', 10, 'bold'))
-    style.configure("Green.TFrame", background="light green")
-    style.configure("Blue.TFrame", background="light blue")
-    style.configure("Orange.TFrame", background="orange")
-    style.configure("Red.TFrame", background="red", color="white")
+    style.configure("Green.TFrame", background=Colors.UCL)
+    style.configure("Blue.TFrame", background=Colors.UEL)
+    style.configure("Orange.TFrame", background=Colors.UECL)
+    style.configure("Red.TFrame", background=Colors.REL, color="white")
 
     # Create cells
     def create_cell(parent, content, is_header=False, is_bold=False, is_green=False, is_blue=False, is_orange=False, is_red=False):
